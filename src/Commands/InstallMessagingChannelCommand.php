@@ -10,7 +10,7 @@ class InstallMessagingChannelCommand extends Command
     protected $signature = 'messaging-channel:install
         {--url= : Messaging service base URL}
         {--app-id= : Issued messaging application id}
-        {--secret= : Issued messaging application secret}
+        {--secret= : Issued messaging application secret. Prefer the hidden prompt instead of this option.}
         {--force : Overwrite the published config file if it exists}';
 
     protected $description = 'Publish messaging channel config and add required environment keys.';
@@ -25,7 +25,7 @@ class InstallMessagingChannelCommand extends Command
         $this->appendEnvKeys([
             'MESSAGING_SERVICE_URL' => $this->option('url') ?: 'https://messaging.example.com',
             'MESSAGING_APP_ID' => $this->option('app-id') ?: '',
-            'MESSAGING_APP_SECRET' => $this->option('secret') ?: '',
+            'MESSAGING_APP_SECRET' => $this->option('secret') ?: $this->secret('Messaging app secret') ?: '',
             'MESSAGING_SERVICE_TIMEOUT' => '10',
         ]);
 

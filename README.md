@@ -5,11 +5,10 @@ Laravel notification channel for applications that send email and verification r
 ## Install
 
 ```bash
-composer require rpos/messaging-channel
+composer require rpos/messaging-channel:^0.1
 php artisan messaging-channel:install \
     --url=https://messaging.example.com \
-    --app-id=msg_example \
-    --secret=secret-from-messaging-service
+    --app-id=msg_example
 ```
 
 The install command publishes `config/messaging-channel.php` and adds these keys to `.env` when they are missing:
