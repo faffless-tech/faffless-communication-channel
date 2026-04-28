@@ -1,0 +1,27 @@
+{
+    "name": "rpos/messaging-channel",
+    "description": "Laravel notification channel for sending messages through the RPOS Messaging service.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "illuminate/contracts": "^10.0|^11.0|^12.0",
+        "illuminate/http": "^10.0|^11.0|^12.0",
+        "illuminate/notifications": "^10.0|^11.0|^12.0",
+        "illuminate/support": "^10.0|^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rpos\\MessagingChannel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rpos\\MessagingChannel\\MessagingChannelServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

@@ -1,0 +1,37 @@
+<?php
+
+namespace Rpos\MessagingChannel;
+
+use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Http;
+
+class MessagingChannel
+{
+    public function send(object $notifiable, Notification $notification): void
+    {
+        if (! method_exists($notification, 'toMessagingService')) {
+            return;
+        }
+
+        $message = MessagingMessage::from($notification->toMessagingService($notifiable));
+
+        Http::timeout(config('messaging-channel.timeout'))
+            ->withHeaders([
+                'X-Messaging-App-Id' => config('messaging-channel.app_id'),
+                'X-Messaging-Secret' => config('messaging-channel.secret'),
+            ])
+            ->post($this->endpoint($message), $message->payload())
+            ->throw();
+    }
+
+    private function endpoint(MessagingMessage $message): string
+    {
+        $path = match ($message->type()) {
+            'email' => '/api/v1/email',
+            'verification' => '/api/v1/verifications',
+            default => throw new UnsupportedMessageTypeException($message->type()),
+        };
+
+        return rtrim(config('messaging-channel.url'), '/').$path;
+    }
+}
