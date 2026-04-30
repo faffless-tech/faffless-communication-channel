@@ -29,6 +29,9 @@ class InstallMessagingChannelCommand extends Command
             'MESSAGING_APP_ID' => $this->option('app-id') ?: '',
             'MESSAGING_APP_SECRET' => $this->option('secret') ?: $this->secret('Messaging app secret') ?: '',
             'MESSAGING_SERVICE_TIMEOUT' => '10',
+            'MESSAGING_BRAND_KEY' => '${VITE_BRAND_KEY}',
+            'MESSAGING_BRAND_NAME' => '${VITE_BRAND_NAME}',
+            'MESSAGING_BRAND_REGION' => '${VITE_BRAND_REGION}',
         ]);
 
         $this->components->info('RPOS messaging channel installed.');
@@ -60,6 +63,9 @@ class InstallMessagingChannelCommand extends Command
             'app_id' => env('MESSAGING_APP_ID'),
             'secret' => env('MESSAGING_APP_SECRET'),
             'timeout' => env('MESSAGING_SERVICE_TIMEOUT', 10),
+            'brand_key' => env('MESSAGING_BRAND_KEY', env('VITE_BRAND_KEY')),
+            'brand_name' => env('MESSAGING_BRAND_NAME', env('VITE_BRAND_NAME')),
+            'brand_region' => env('MESSAGING_BRAND_REGION', env('VITE_BRAND_REGION')),
         ],
 PHP;
 

@@ -22,6 +22,9 @@ class MessagingChannelServiceProvider extends ServiceProvider
                 url: $config['url'] ?? config('messaging-channel.url'),
                 appId: $config['app_id'] ?? config('messaging-channel.app_id'),
                 secret: $config['secret'] ?? config('messaging-channel.secret'),
+                brandKey: $config['brand_key'] ?? config('messaging-channel.brand_key'),
+                brandName: $config['brand_name'] ?? config('messaging-channel.brand_name'),
+                brandRegion: $config['brand_region'] ?? config('messaging-channel.brand_region'),
                 timeout: (int) ($config['timeout'] ?? config('messaging-channel.timeout', 10)),
             );
         });

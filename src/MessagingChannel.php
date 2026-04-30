@@ -20,7 +20,7 @@ class MessagingChannel
                 'X-Messaging-App-Id' => config('messaging-channel.app_id'),
                 'X-Messaging-Secret' => config('messaging-channel.secret'),
             ])
-            ->post($this->endpoint($message), $message->payload())
+            ->post($this->endpoint($message), $this->payload($message))
             ->throw();
     }
 
@@ -33,5 +33,15 @@ class MessagingChannel
         };
 
         return rtrim(config('messaging-channel.url'), '/').$path;
+    }
+
+    private function payload(MessagingMessage $message): array
+    {
+        return array_filter([
+            'brand_key' => config('messaging-channel.brand_key'),
+            'brand_name' => config('messaging-channel.brand_name'),
+            'brand_region' => config('messaging-channel.brand_region'),
+            ...$message->payload(),
+        ], fn ($value) => $value !== null && $value !== '');
     }
 }

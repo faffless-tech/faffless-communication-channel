@@ -18,6 +18,9 @@ class MessagingHubTransport extends AbstractTransport
         private readonly string $url,
         private readonly string $appId,
         private readonly string $secret,
+        private readonly ?string $brandKey = null,
+        private readonly ?string $brandName = null,
+        private readonly ?string $brandRegion = null,
         private readonly int $timeout = 10,
         ?EventDispatcherInterface $dispatcher = null,
     ) {
@@ -55,6 +58,9 @@ class MessagingHubTransport extends AbstractTransport
             'subject' => $email->getSubject() ?? '',
             'text' => $email->getTextBody(),
             'html' => $email->getHtmlBody(),
+            'brand_key' => $this->brandKey,
+            'brand_name' => $this->brandName,
+            'brand_region' => $this->brandRegion,
             'metadata' => [
                 'message_id' => $email->getHeaders()->get('Message-ID')?->getBodyAsString(),
                 'headers' => $this->headers($email),
