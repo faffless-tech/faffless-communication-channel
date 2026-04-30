@@ -17,6 +17,8 @@ class InstallMessagingChannelCommand extends Command
 
     public function handle(): int
     {
+        $this->addMailConfiguration();
+
         $this->call('vendor:publish', [
             '--tag' => 'messaging-channel-config',
             '--force' => $this->option('force'),
@@ -30,9 +32,47 @@ class InstallMessagingChannelCommand extends Command
         ]);
 
         $this->components->info('RPOS messaging channel installed.');
-        $this->line('Use Rpos\\MessagingChannel\\MessagingChannel in your notification via() method.');
+        $this->line('Set MAIL_MAILER=messaging_hub to route Laravel mail through the messaging hub.');
+        $this->line('Use Rpos\\MessagingChannel\\MessagingChannel for explicit non-mail hub notifications.');
 
         return self::SUCCESS;
+    }
+
+    private function addMailConfiguration(): void
+    {
+        $path = config_path('mail.php');
+
+        if (! File::exists($path)) {
+            return;
+        }
+
+        $contents = File::get($path);
+
+        if (str_contains($contents, "'messaging_hub' => [")) {
+            return;
+        }
+
+        $mailer = <<<'PHP'
+
+        'messaging_hub' => [
+            'transport' => 'messaging_hub',
+            'url' => env('MESSAGING_SERVICE_URL'),
+            'app_id' => env('MESSAGING_APP_ID'),
+            'secret' => env('MESSAGING_APP_SECRET'),
+            'timeout' => env('MESSAGING_SERVICE_TIMEOUT', 10),
+        ],
+PHP;
+
+        $updated = preg_replace(
+            "/('mailers'\s*=>\s*\[\s*)/",
+            "$1".$mailer.PHP_EOL,
+            $contents,
+            1
+        );
+
+        if ($updated && $updated !== $contents) {
+            File::put($path, $updated);
+        }
     }
 
     private function appendEnvKeys(array $keys): void

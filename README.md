@@ -20,6 +20,26 @@ MESSAGING_APP_SECRET=secret-from-messaging-service
 MESSAGING_SERVICE_TIMEOUT=10
 ```
 
+To route Laravel mail through the messaging hub, set the default mailer:
+
+```dotenv
+MAIL_MAILER=messaging_hub
+```
+
+The package registers a `messaging_hub` mail transport and the install command adds this mailer to `config/mail.php` when it is missing:
+
+```php
+'messaging_hub' => [
+    'transport' => 'messaging_hub',
+    'url' => env('MESSAGING_SERVICE_URL'),
+    'app_id' => env('MESSAGING_APP_ID'),
+    'secret' => env('MESSAGING_APP_SECRET'),
+    'timeout' => env('MESSAGING_SERVICE_TIMEOUT', 10),
+],
+```
+
+With `MAIL_MAILER=messaging_hub`, normal Laravel mail, mail notifications, and Laravel's built-in email verification emails are delivered through the RPOS Messaging Hub.
+
 ## Usage
 
 ```php
