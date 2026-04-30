@@ -93,3 +93,23 @@ public function toMessagingService(object $notifiable): MessagingMessage
         ->purpose('login');
 }
 ```
+
+Transactional SMS:
+
+```php
+public function toMessagingService(object $notifiable): MessagingMessage
+{
+    return MessagingMessage::sms($notifiable->phone, 'Your hire is ready.')
+        ->purpose('hire_update');
+}
+```
+
+WhatsApp:
+
+```php
+public function toMessagingService(object $notifiable): MessagingMessage
+{
+    return MessagingMessage::whatsapp($notifiable->phone, 'Your hire is ready.')
+        ->purpose('hire_update');
+}
+```

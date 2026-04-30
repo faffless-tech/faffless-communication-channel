@@ -28,6 +28,8 @@ class MessagingChannel
     {
         $path = match ($message->type()) {
             'email' => '/api/v1/email',
+            'sms' => '/api/v1/sms',
+            'whatsapp' => '/api/v1/whatsapp',
             'verification' => '/api/v1/verifications',
             default => throw new UnsupportedMessageTypeException($message->type()),
         };

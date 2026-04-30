@@ -28,6 +28,22 @@ class MessagingMessage
         ]);
     }
 
+    public static function sms(string $to, string $text): self
+    {
+        return new self('sms', [
+            'to' => $to,
+            'text' => $text,
+        ]);
+    }
+
+    public static function whatsapp(string $to, string $text): self
+    {
+        return new self('whatsapp', [
+            'to' => $to,
+            'text' => $text,
+        ]);
+    }
+
     public static function from(self|array $message): self
     {
         if ($message instanceof self) {
