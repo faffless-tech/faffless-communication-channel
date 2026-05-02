@@ -44,6 +44,29 @@ class MessagingMessage
         ]);
     }
 
+    public static function trackerCommand(?int $deviceId, string $type, array $attributes = []): self
+    {
+        return new self('tracker_command', array_filter([
+            'device_id' => $deviceId,
+            'type' => $type,
+            'attributes' => $attributes,
+        ], fn ($value) => $value !== null));
+    }
+
+    public function group(int $groupId): self
+    {
+        $this->payload['group_id'] = $groupId;
+
+        return $this;
+    }
+
+    public function description(string $description): self
+    {
+        $this->payload['description'] = $description;
+
+        return $this;
+    }
+
     public static function from(self|array $message): self
     {
         if ($message instanceof self) {

@@ -30,6 +30,7 @@ class MessagingChannel
             'email' => '/api/v1/email',
             'sms' => '/api/v1/sms',
             'whatsapp' => '/api/v1/whatsapp',
+            'tracker_command' => '/api/v1/tracker/commands',
             'verification' => '/api/v1/verifications',
             default => throw new UnsupportedMessageTypeException($message->type()),
         };

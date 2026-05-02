@@ -113,3 +113,16 @@ public function toMessagingService(object $notifiable): MessagingMessage
         ->purpose('hire_update');
 }
 ```
+
+Tracker command:
+
+```php
+public function toMessagingService(object $notifiable): MessagingMessage
+{
+    return MessagingMessage::trackerCommand(
+        deviceId: 123,
+        type: 'custom',
+        attributes: ['data' => 'getstatus']
+    )->purpose('tracker_command');
+}
+```
