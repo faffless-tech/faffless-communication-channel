@@ -1,6 +1,6 @@
 # RPOS Messaging Channel
 
-Laravel notification channel for applications that send email and verification requests through the RPOS Messaging service.
+Laravel notification channel and client helpers for applications that send email, messages, commands, and verification requests through the RPOS Messaging service.
 
 ## Install
 
@@ -63,6 +63,7 @@ The hub uses `brand_key` and `brand_region` to resolve the correct provider acco
 ```php
 use Illuminate\Notifications\Notification;
 use Rpos\MessagingChannel\MessagingChannel;
+use Rpos\MessagingChannel\MessagingEmail;
 use Rpos\MessagingChannel\MessagingMessage;
 
 class HireReadyNotification extends Notification
@@ -74,7 +75,7 @@ class HireReadyNotification extends Notification
 
     public function toMessagingService(object $notifiable): MessagingMessage
     {
-        return MessagingMessage::email(
+        return MessagingEmail::message(
             to: $notifiable->email,
             subject: 'Hire update',
             text: 'Your hire is ready.'
@@ -84,14 +85,24 @@ class HireReadyNotification extends Notification
 }
 ```
 
-Phone verification request:
+For interactive phone-number verification flows, use the request/response client instead of the notification channel:
 
 ```php
-public function toMessagingService(object $notifiable): MessagingMessage
-{
-    return MessagingMessage::verification('phone', $notifiable->phone)
-        ->purpose('login');
-}
+use Rpos\MessagingChannel\MessagingVerification;
+
+$verifications = app(MessagingVerification::class);
+
+$verification = $verifications->start('sms', $user->phone, [
+    'purpose' => 'login',
+]);
+
+$result = $verifications->check(
+    verificationId: $verification['verification_id'],
+    code: $request->input('code')
+);
+
+$verifications->next($verification['verification_id']);
+$verifications->retryVia($verification['verification_id'], 'call');
 ```
 
 Transactional SMS:
@@ -117,12 +128,25 @@ public function toMessagingService(object $notifiable): MessagingMessage
 Tracker command:
 
 ```php
+use Rpos\MessagingChannel\MessagingCommand;
+
 public function toMessagingService(object $notifiable): MessagingMessage
 {
-    return MessagingMessage::trackerCommand(
+    return MessagingCommand::tracker(
         deviceId: 123,
         type: 'custom',
         attributes: ['data' => 'getstatus']
     )->purpose('tracker_command');
 }
+```
+
+Tracker commands can also be sent directly:
+
+```php
+app(MessagingCommand::class)->sendTracker(
+    deviceId: 123,
+    type: 'custom',
+    attributes: ['data' => 'getstatus'],
+    payload: ['purpose' => 'tracker_command']
+);
 ```
