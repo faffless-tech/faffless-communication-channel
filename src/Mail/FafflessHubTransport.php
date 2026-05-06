@@ -32,8 +32,8 @@ class FafflessHubTransport extends AbstractTransport
         $this->http
             ->timeout($this->timeout)
             ->withHeaders([
-                'X-Messaging-App-Id' => $this->appId,
-                'X-Messaging-Secret' => $this->secret,
+                'X-Faffless-Hub-App-Id' => $this->appId,
+                'X-Faffless-Hub-Secret' => $this->secret,
             ])
             ->post(rtrim($this->url, '/').'/api/v1/email', $this->payload($email, $envelope))
             ->throw();

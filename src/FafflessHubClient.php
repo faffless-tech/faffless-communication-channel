@@ -11,8 +11,8 @@ class FafflessHubClient
     {
         return Http::timeout(config('faffless-hub.timeout'))
             ->withHeaders([
-                'X-Messaging-App-Id' => config('faffless-hub.app_id'),
-                'X-Messaging-Secret' => config('faffless-hub.secret'),
+                'X-Faffless-Hub-App-Id' => config('faffless-hub.app_id'),
+                'X-Faffless-Hub-Secret' => config('faffless-hub.secret'),
             ])
             ->post($this->url($path), $this->payload($payload))
             ->throw();
