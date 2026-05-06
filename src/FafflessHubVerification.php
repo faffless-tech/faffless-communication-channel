@@ -1,11 +1,11 @@
 <?php
 
-namespace Rpos\MessagingChannel;
+namespace Faffless\CommunicationChannel;
 
-class MessagingVerification
+class FafflessHubVerification
 {
     public function __construct(
-        private MessagingHubClient $client = new MessagingHubClient
+        private FafflessHubClient $client = new FafflessHubClient
     ) {
     }
 

@@ -1,81 +1,66 @@
-# RPOS Messaging Channel
+# Faffless Communication Channel
 
-Laravel notification channel and client helpers for applications that send email, messages, commands, and verification requests through the RPOS Messaging service.
+Laravel notification channel and client helpers for applications that send email, messages, commands, and verification requests through the Faffless Communication Hub service.
 
 ## Install
 
 ```bash
-composer require rpos/messaging-channel
-php artisan messaging-channel:install \
-    --url=https://messaging.example.com \
+composer require faffless/communication-channel
+php artisan faffless-channel:install \
     --app-id=msg_example
 ```
 
-To pin a release series, require a constraint such as `rpos/messaging-channel:^0.2`.
+To pin a release series, require a constraint such as `faffless/communication-channel:^0.2`.
 
-The install command publishes `config/messaging-channel.php` and adds these keys to `.env` when they are missing:
-
-```dotenv
-MESSAGING_SERVICE_URL=https://messaging.example.com
-MESSAGING_APP_ID=msg_example
-MESSAGING_APP_SECRET=secret-from-messaging-service
-MESSAGING_SERVICE_TIMEOUT=10
-MESSAGING_BRAND_KEY="${VITE_BRAND_KEY}"
-MESSAGING_BRAND_NAME="${VITE_BRAND_NAME}"
-MESSAGING_BRAND_REGION="${VITE_BRAND_REGION}"
-```
-
-To route Laravel mail through the messaging hub, set the default mailer:
+The install command publishes `config/faffless-hub.php` and adds the required credential keys to `.env` when they are missing:
 
 ```dotenv
-MAIL_MAILER=messaging_hub
+FAFFLESS_HUB_APP_ID=msg_example
+FAFFLESS_HUB_APP_SECRET=secret-from-communication-hub
 ```
 
-The package registers a `messaging_hub` mail transport and the install command adds this mailer to `config/mail.php` when it is missing:
+Pass `--url` during installation only for local or staging hubs; otherwise the package uses its built-in production URL.
+
+To route Laravel mail through the communication hub, set the default mailer:
+
+```dotenv
+MAIL_MAILER=faffless
+```
+
+The package registers a `faffless` mail transport and the install command adds this mailer to `config/mail.php` when it is missing:
 
 ```php
-'messaging_hub' => [
-    'transport' => 'messaging_hub',
-    'url' => env('MESSAGING_SERVICE_URL'),
-    'app_id' => env('MESSAGING_APP_ID'),
-    'secret' => env('MESSAGING_APP_SECRET'),
-    'timeout' => env('MESSAGING_SERVICE_TIMEOUT', 10),
-    'brand_key' => env('MESSAGING_BRAND_KEY', env('VITE_BRAND_KEY')),
-    'brand_name' => env('MESSAGING_BRAND_NAME', env('VITE_BRAND_NAME')),
-    'brand_region' => env('MESSAGING_BRAND_REGION', env('VITE_BRAND_REGION')),
+'faffless' => [
+    'transport' => 'faffless',
+    'url' => env('FAFFLESS_HUB_URL', 'https://communication.faffless.ai'),
+    'app_id' => env('FAFFLESS_HUB_APP_ID'),
+    'secret' => env('FAFFLESS_HUB_APP_SECRET'),
+    'timeout' => 10,
 ],
 ```
 
-With `MAIL_MAILER=messaging_hub`, normal Laravel mail, mail notifications, and Laravel's built-in email verification emails are delivered through the RPOS Messaging Hub.
+With `MAIL_MAILER=faffless`, normal Laravel mail, mail notifications, and Laravel's built-in email verification emails are delivered through the Faffless Communication Hub.
 
-The package includes brand context on mail transport and notification channel requests. By default it reads from `MESSAGING_BRAND_*` and falls back to the calling app's `VITE_BRAND_*` values:
-
-```dotenv
-VITE_BRAND_KEY=hr
-VITE_BRAND_NAME="Handy Rentals"
-VITE_BRAND_REGION=au
-```
-
-The hub uses `brand_key` and `brand_region` to resolve the correct provider account while keeping provider credentials out of calling apps.
+Brand and provider routing are resolved by the hub from the authenticated application, so calling apps do not need brand-specific environment keys.
 
 ## Usage
 
 ```php
 use Illuminate\Notifications\Notification;
-use Rpos\MessagingChannel\MessagingChannel;
-use Rpos\MessagingChannel\MessagingEmail;
-use Rpos\MessagingChannel\MessagingMessage;
+use Faffless\CommunicationChannel\FafflessHubChannel;
+use Faffless\CommunicationChannel\FafflessHubEmail;
+use Faffless\CommunicationChannel\FafflessHubMessage;
 
 class HireReadyNotification extends Notification
 {
     public function via(object $notifiable): array
     {
-        return [MessagingChannel::class];
+        return [FafflessHubChannel::class];
     }
 
-    public function toMessagingService(object $notifiable): MessagingMessage
+    public function toCommunicationHub(object $notifiable): FafflessHubMessage
     {
-        return MessagingEmail::message(
+        return FafflessHubEmail::message(
             to: $notifiable->email,
             subject: 'Hire update',
             text: 'Your hire is ready.'
@@ -88,9 +73,9 @@ class HireReadyNotification extends Notification
 For interactive phone-number verification flows, use the request/response client instead of the notification channel:
 
 ```php
-use Rpos\MessagingChannel\MessagingVerification;
+use Faffless\CommunicationChannel\FafflessHubVerification;
 
-$verifications = app(MessagingVerification::class);
+$verifications = app(FafflessHubVerification::class);
 
 $verification = $verifications->start('sms', $user->phone, [
     'purpose' => 'login',
@@ -108,9 +93,9 @@ $verifications->retryVia($verification['verification_id'], 'call');
 Transactional SMS:
 
 ```php
-public function toMessagingService(object $notifiable): MessagingMessage
+public function toCommunicationHub(object $notifiable): FafflessHubMessage
 {
-    return MessagingMessage::sms($notifiable->phone, 'Your hire is ready.')
+    return FafflessHubMessage::sms($notifiable->phone, 'Your hire is ready.')
         ->purpose('hire_update');
 }
 ```
@@ -118,9 +103,9 @@ public function toMessagingService(object $notifiable): MessagingMessage
 WhatsApp:
 
 ```php
-public function toMessagingService(object $notifiable): MessagingMessage
+public function toCommunicationHub(object $notifiable): FafflessHubMessage
 {
-    return MessagingMessage::whatsapp($notifiable->phone, 'Your hire is ready.')
+    return FafflessHubMessage::whatsapp($notifiable->phone, 'Your hire is ready.')
         ->purpose('hire_update');
 }
 ```
@@ -128,11 +113,11 @@ public function toMessagingService(object $notifiable): MessagingMessage
 Tracker command:
 
 ```php
-use Rpos\MessagingChannel\MessagingCommand;
+use Faffless\CommunicationChannel\FafflessHubCommand;
 
-public function toMessagingService(object $notifiable): MessagingMessage
+public function toCommunicationHub(object $notifiable): FafflessHubMessage
 {
-    return MessagingCommand::tracker(
+    return FafflessHubCommand::tracker(
         deviceId: 123,
         type: 'custom',
         attributes: ['data' => 'getstatus']
@@ -143,7 +128,7 @@ public function toMessagingService(object $notifiable): MessagingMessage
 Tracker commands can also be sent directly:
 
 ```php
-app(MessagingCommand::class)->sendTracker(
+app(FafflessHubCommand::class)->sendTracker(
     deviceId: 123,
     type: 'custom',
     attributes: ['data' => 'getstatus'],

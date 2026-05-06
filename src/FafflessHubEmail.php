@@ -1,17 +1,17 @@
 <?php
 
-namespace Rpos\MessagingChannel;
+namespace Faffless\CommunicationChannel;
 
-class MessagingEmail
+class FafflessHubEmail
 {
     public function __construct(
-        private MessagingHubClient $client = new MessagingHubClient
+        private FafflessHubClient $client = new FafflessHubClient
     ) {
     }
 
-    public static function message(string $to, string $subject, ?string $text = null, ?string $html = null): MessagingMessage
+    public static function message(string $to, string $subject, ?string $text = null, ?string $html = null): FafflessHubMessage
     {
-        return new MessagingMessage('email', array_filter([
+        return new FafflessHubMessage('email', array_filter([
             'to' => $to,
             'subject' => $subject,
             'text' => $text,

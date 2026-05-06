@@ -1,6 +1,6 @@
 {
-    "name": "rpos/messaging-channel",
-    "description": "Laravel notification channel for sending messages through the RPOS Messaging service.",
+    "name": "faffless/communication-channel",
+    "description": "Laravel notification channel for sending messages through the Faffless Communication Hub service.",
     "type": "library",
     "license": "MIT",
     "require": {
@@ -15,13 +15,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Rpos\\MessagingChannel\\": "src/"
+            "Faffless\\CommunicationChannel\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Rpos\\MessagingChannel\\MessagingChannelServiceProvider"
+                "Faffless\\CommunicationChannel\\FafflessHubChannelServiceProvider"
             ]
         }
     },

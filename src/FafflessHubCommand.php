@@ -1,17 +1,17 @@
 <?php
 
-namespace Rpos\MessagingChannel;
+namespace Faffless\CommunicationChannel;
 
-class MessagingCommand
+class FafflessHubCommand
 {
     public function __construct(
-        private MessagingHubClient $client = new MessagingHubClient
+        private FafflessHubClient $client = new FafflessHubClient
     ) {
     }
 
-    public static function tracker(?int $deviceId, string $type, array $attributes = []): MessagingMessage
+    public static function tracker(?int $deviceId, string $type, array $attributes = []): FafflessHubMessage
     {
-        return new MessagingMessage('tracker_command', array_filter([
+        return new FafflessHubMessage('tracker_command', array_filter([
             'device_id' => $deviceId,
             'type' => $type,
             'attributes' => $attributes,

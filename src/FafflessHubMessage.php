@@ -1,8 +1,8 @@
 <?php
 
-namespace Rpos\MessagingChannel;
+namespace Faffless\CommunicationChannel;
 
-class MessagingMessage
+class FafflessHubMessage
 {
     public function __construct(
         private string $type,

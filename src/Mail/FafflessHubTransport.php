@@ -1,6 +1,6 @@
 <?php
 
-namespace Rpos\MessagingChannel\Mail;
+namespace Faffless\CommunicationChannel\Mail;
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Symfony\Component\Mailer\Envelope;
@@ -11,16 +11,13 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\MessageConverter;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class MessagingHubTransport extends AbstractTransport
+class FafflessHubTransport extends AbstractTransport
 {
     public function __construct(
         private readonly HttpFactory $http,
         private readonly string $url,
         private readonly string $appId,
         private readonly string $secret,
-        private readonly ?string $brandKey = null,
-        private readonly ?string $brandName = null,
-        private readonly ?string $brandRegion = null,
         private readonly int $timeout = 10,
         ?EventDispatcherInterface $dispatcher = null,
     ) {
@@ -44,7 +41,7 @@ class MessagingHubTransport extends AbstractTransport
 
     public function __toString(): string
     {
-        return 'messaging_hub';
+        return 'faffless';
     }
 
     private function payload(Email $email, Envelope $envelope): array
@@ -58,9 +55,6 @@ class MessagingHubTransport extends AbstractTransport
             'subject' => $email->getSubject() ?? '',
             'text' => $email->getTextBody(),
             'html' => $email->getHtmlBody(),
-            'brand_key' => $this->brandKey,
-            'brand_name' => $this->brandName,
-            'brand_region' => $this->brandRegion,
             'metadata' => [
                 'message_id' => $email->getHeaders()->get('Message-ID')?->getBodyAsString(),
                 'headers' => $this->headers($email),
