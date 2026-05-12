@@ -57,7 +57,6 @@ class InstallFafflessHubChannelCommand extends Command
         }
 
         $mailer = <<<'PHP'
-
         'faffless' => [
             'transport' => 'faffless',
             'url' => env('FAFFLESS_HUB_URL', 'https://communication.faffless.ai'),
@@ -65,11 +64,12 @@ class InstallFafflessHubChannelCommand extends Command
             'secret' => env('FAFFLESS_HUB_APP_SECRET'),
             'timeout' => 10,
         ],
+
 PHP;
 
         $updated = preg_replace(
-            "/('mailers'\s*=>\s*\[\s*)/",
-            "$1".$mailer.PHP_EOL,
+            "/('mailers'\s*=>\s*\[\R)/",
+            "$1".$mailer,
             $contents,
             1
         );
