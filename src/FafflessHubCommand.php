@@ -21,12 +21,11 @@ class FafflessHubCommand
     public function sendTracker(?int $deviceId, string $type, array $attributes = [], array $payload = []): array
     {
         return $this->client
-            ->post('/api/v1/tracker/command', array_filter([
+            ->sendInteraction('/api/v1/tracker/command', array_filter([
                 'device_id' => $deviceId,
                 'type' => $type,
                 'attributes' => $attributes,
                 ...$payload,
-            ], fn ($value) => $value !== null))
-            ->json();
+            ], fn ($value) => $value !== null));
     }
 }

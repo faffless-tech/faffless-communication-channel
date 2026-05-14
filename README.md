@@ -81,6 +81,8 @@ $verification = $verifications->start('sms', $user->phone, [
     'purpose' => 'login',
 ]);
 
+$interactionId = $verification['interaction_id'];
+
 $result = $verifications->check(
     verificationId: $verification['verification_id'],
     code: $request->input('code')
@@ -88,6 +90,18 @@ $result = $verifications->check(
 
 $verifications->next($verification['verification_id']);
 $verifications->retryVia($verification['verification_id'], 'call');
+```
+
+The hub returns `interaction_id` for send/start/next operations. Treat that as the canonical id for lifecycle lookups; the domain-specific `id` fields are implementation details.
+
+```php
+use Faffless\CommunicationChannel\FafflessHubClient;
+
+$hub = app(FafflessHubClient::class);
+
+$timeline = $hub->events($interactionId);
+$attempts = $hub->attempts($interactionId);
+$artifacts = $hub->artifacts($interactionId);
 ```
 
 Transactional SMS:
@@ -128,10 +142,12 @@ public function toCommunicationHub(object $notifiable): FafflessHubMessage
 Tracker commands can also be sent directly:
 
 ```php
-app(FafflessHubCommand::class)->sendTracker(
+$command = app(FafflessHubCommand::class)->sendTracker(
     deviceId: 123,
     type: 'custom',
     attributes: ['data' => 'getstatus'],
     payload: ['purpose' => 'tracker_command']
 );
+
+$interactionId = $command['interaction_id'];
 ```

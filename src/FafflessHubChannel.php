@@ -11,15 +11,15 @@ class FafflessHubChannel
     ) {
     }
 
-    public function send(object $notifiable, Notification $notification): void
+    public function send(object $notifiable, Notification $notification): ?array
     {
         if (! method_exists($notification, 'toCommunicationHub')) {
-            return;
+            return null;
         }
 
         $message = FafflessHubMessage::from($notification->toCommunicationHub($notifiable));
 
-        $this->client->post($this->endpoint($message), $message->payload());
+        return $this->client->sendInteraction($this->endpoint($message), $message->payload());
     }
 
     private function endpoint(FafflessHubMessage $message): string
