@@ -26,6 +26,12 @@
             ]
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:GavinHoward/faffless-hub-client.git"
+        }
+    ],
     "minimum-stability": "stable",
     "prefer-stable": true
 }
