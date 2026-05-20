@@ -15,8 +15,8 @@ To pin a release series, require a constraint such as `faffless/communication-ch
 The install command publishes `config/faffless-hub.php` and adds the required credential keys to `.env` when they are missing:
 
 ```dotenv
-FAFFLESS_HUB_APP_ID=msg_example
-FAFFLESS_HUB_APP_SECRET=secret-from-communication-hub
+FAFFLESS_HUB_API_KEY=msg_example
+FAFFLESS_HUB_API_SECRET=secret-from-communication-hub
 ```
 
 Pass `--url` during installation only for local or staging hubs; otherwise the package uses its built-in production URL.
@@ -33,8 +33,8 @@ The package registers a `faffless` mail transport and the install command adds t
 'faffless' => [
     'transport' => 'faffless',
     'url' => env('FAFFLESS_HUB_URL', 'https://communication.faffless.ai'),
-    'app_id' => env('FAFFLESS_HUB_APP_ID'),
-    'secret' => env('FAFFLESS_HUB_APP_SECRET'),
+    'api_key' => env('FAFFLESS_HUB_API_KEY'),
+    'api_secret' => env('FAFFLESS_HUB_API_SECRET'),
     'timeout' => 10,
 ],
 ```

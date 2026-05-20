@@ -20,8 +20,8 @@ class FafflessHubChannelServiceProvider extends ServiceProvider
             return new FafflessHubTransport(
                 http: $this->app['http'],
                 url: $config['url'] ?? config('faffless-hub.url'),
-                appId: $config['app_id'] ?? config('faffless-hub.app_id'),
-                secret: $config['secret'] ?? config('faffless-hub.secret'),
+                apiKey: $config['api_key'] ?? config('faffless-hub.api_key') ?? $config['app_id'] ?? config('faffless-hub.app_id'),
+                apiSecret: $config['api_secret'] ?? config('faffless-hub.api_secret') ?? $config['secret'] ?? config('faffless-hub.secret'),
                 timeout: (int) ($config['timeout'] ?? config('faffless-hub.timeout', 10)),
             );
         });
