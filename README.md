@@ -92,6 +92,8 @@ $verifications->next($verification['verification_id']);
 $verifications->retryVia($verification['verification_id'], 'call');
 ```
 
+Use `start('call', $phone)` when the consuming app should begin with voice verification rather than starting with SMS and escalating later.
+
 The hub returns `interaction_id` for send/start/next operations. Treat that as the canonical id for lifecycle lookups; the domain-specific `id` fields are implementation details.
 
 ```php
