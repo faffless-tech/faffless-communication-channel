@@ -26,7 +26,7 @@ class FafflessHubMessage
         ]);
     }
 
-    public function group(int $groupId): self
+    public function group(string $groupId): self
     {
         $this->payload['group_id'] = $groupId;
 

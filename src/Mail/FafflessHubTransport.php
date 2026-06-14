@@ -17,7 +17,6 @@ class FafflessHubTransport extends AbstractTransport
         private readonly HttpFactory $http,
         private readonly string $url,
         private readonly string $apiKey,
-        private readonly string $apiSecret,
         private readonly int $timeout = 10,
         ?EventDispatcherInterface $dispatcher = null,
     ) {
@@ -31,11 +30,8 @@ class FafflessHubTransport extends AbstractTransport
 
         $this->http
             ->timeout($this->timeout)
-            ->withHeaders([
-                'X-Faffless-Hub-Api-Key' => $this->apiKey,
-                'X-Faffless-Hub-Api-Secret' => $this->apiSecret,
-            ])
-            ->post(rtrim($this->url, '/').'/api/v1/email', $this->payload($email, $envelope))
+            ->withToken($this->apiKey)
+            ->post(rtrim($this->url, '/').'/api/v1/application/email', $this->payload($email, $envelope))
             ->throw();
     }
 

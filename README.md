@@ -7,7 +7,7 @@ Laravel notification channel and client helpers for applications that send email
 ```bash
 composer require faffless/communication-channel
 php artisan faffless-channel:install \
-    --app-id=msg_example
+    --api-key=app_live_example
 ```
 
 To pin a release series, require a constraint such as `faffless/communication-channel:^0.2`.
@@ -15,8 +15,7 @@ To pin a release series, require a constraint such as `faffless/communication-ch
 The install command publishes `config/faffless-hub.php` and adds the required credential keys to `.env` when they are missing:
 
 ```dotenv
-FAFFLESS_HUB_API_KEY=msg_example
-FAFFLESS_HUB_API_SECRET=secret-from-communication-hub
+FAFFLESS_HUB_API_KEY=app_live_example
 ```
 
 Pass `--url` during installation only for local or staging hubs; otherwise the package uses its built-in production URL.
@@ -34,7 +33,6 @@ The package registers a `faffless` mail transport and the install command adds t
     'transport' => 'faffless',
     'url' => env('FAFFLESS_HUB_URL', 'https://communication.faffless.ai'),
     'api_key' => env('FAFFLESS_HUB_API_KEY'),
-    'api_secret' => env('FAFFLESS_HUB_API_SECRET'),
     'timeout' => 10,
 ],
 ```
@@ -65,7 +63,7 @@ class HireReadyNotification extends Notification
             subject: 'Hire update',
             text: 'Your hire is ready.'
         )->purpose('hire_update')
-            ->metadata(['user_id' => $notifiable->id]);
+            ->metadata(['user_uuid' => $notifiable->uuid]);
     }
 }
 ```
@@ -134,7 +132,7 @@ use Faffless\CommunicationChannel\FafflessHubCommand;
 public function toCommunicationHub(object $notifiable): FafflessHubMessage
 {
     return FafflessHubCommand::tracker(
-        deviceId: 123,
+        deviceId: 'tracker-device-uuid',
         type: 'custom',
         attributes: ['data' => 'getstatus']
     )->purpose('tracker_command');
@@ -145,7 +143,7 @@ Tracker commands can also be sent directly:
 
 ```php
 $command = app(FafflessHubCommand::class)->sendTracker(
-    deviceId: 123,
+    deviceId: 'tracker-device-uuid',
     type: 'custom',
     attributes: ['data' => 'getstatus'],
     payload: ['purpose' => 'tracker_command']

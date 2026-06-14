@@ -25,11 +25,11 @@ class FafflessHubChannel
     private function endpoint(FafflessHubMessage $message): string
     {
         $path = match ($message->type()) {
-            'email' => '/api/v1/email',
-            'sms' => '/api/v1/sms',
-            'whatsapp' => '/api/v1/whatsapp',
-            'tracker_command' => '/api/v1/tracker/command',
-            'verification' => '/api/v1/verification',
+            'email' => 'email',
+            'sms' => 'sms',
+            'whatsapp' => 'whatsapp',
+            'tracker_command' => 'tracker/command',
+            'verification' => 'verification',
             default => throw new UnsupportedFafflessHubMessageTypeException($message->type()),
         };
 

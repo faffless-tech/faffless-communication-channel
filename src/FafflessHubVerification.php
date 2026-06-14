@@ -12,7 +12,7 @@ class FafflessHubVerification
     public function start(string $channel, string $recipient, array $payload = []): array
     {
         return $this->client
-            ->sendInteraction('/api/v1/verification', [
+            ->sendInteraction('verification', [
                 'channel' => $channel,
                 'recipient' => $recipient,
                 ...$payload,
@@ -22,7 +22,7 @@ class FafflessHubVerification
     public function check(string $verificationId, string $code): array
     {
         return $this->client
-            ->post("/api/v1/verification/{$verificationId}/check", [
+            ->post("/api/v1/application/verification/{$verificationId}/check", [
                 'code' => $code,
             ])
             ->json();
@@ -31,7 +31,7 @@ class FafflessHubVerification
     public function next(string $verificationId, array $payload = []): array
     {
         return $this->client
-            ->sendInteraction("/api/v1/verification/{$verificationId}/next", $payload);
+            ->sendInteraction("verification/{$verificationId}/next", $payload);
     }
 
     public function retryVia(string $verificationId, string $channel, array $payload = []): array

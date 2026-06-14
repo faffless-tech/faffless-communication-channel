@@ -22,7 +22,7 @@ class FafflessHubEmail
     public function send(string $to, string $subject, ?string $text = null, ?string $html = null, array $payload = []): array
     {
         return $this->client
-            ->sendInteraction('/api/v1/email', [
+            ->sendInteraction('email', [
                 'to' => $to,
                 'subject' => $subject,
                 'text' => $text,

@@ -10,7 +10,6 @@ class InstallFafflessHubChannelCommand extends Command
     protected $signature = 'faffless-channel:install
         {--url= : Communication Hub service base URL}
         {--api-key= : Issued Faffless Hub API key}
-        {--api-secret= : Issued Faffless Hub API secret. Prefer the hidden prompt instead of this option.}
         {--force : Overwrite the published config file if it exists}';
 
     protected $description = 'Publish Faffless Hub channel config and add required environment keys.';
@@ -26,7 +25,6 @@ class InstallFafflessHubChannelCommand extends Command
 
         $keys = [
             'FAFFLESS_HUB_API_KEY' => $this->option('api-key') ?: '',
-            'FAFFLESS_HUB_API_SECRET' => $this->option('api-secret') ?: $this->secret('Faffless Hub API secret') ?: '',
         ];
 
         if ($this->option('url')) {
@@ -61,7 +59,6 @@ class InstallFafflessHubChannelCommand extends Command
             'transport' => 'faffless',
             'url' => env('FAFFLESS_HUB_URL', 'https://communication.faffless.ai'),
             'api_key' => env('FAFFLESS_HUB_API_KEY'),
-            'api_secret' => env('FAFFLESS_HUB_API_SECRET'),
             'timeout' => 10,
         ],
 
