@@ -4,7 +4,7 @@
     "type": "library",
     "license": "MIT",
     "require": {
-        "php": "^8.2",
+        "php": "^8.5",
         "faffless/hub-client": "^0.1",
         "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
         "illuminate/http": "^10.0|^11.0|^12.0|^13.0",
@@ -33,5 +33,29 @@
         }
     ],
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "require-dev": {
+        "cyclonedx/cyclonedx-php-composer": "^6.2"
+    },
+    "scripts": {
+        "lint": "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
+        "security:audit": "composer audit",
+        "security:sbom": [
+            "@php -r \"is_dir('build/sbom') || mkdir('build/sbom', 0775, true);\"",
+            "composer CycloneDX:make-sbom --output-format=JSON --output-file=build/sbom/cyclonedx.json --spec-version=1.6 --output-reproducible"
+        ],
+        "security:semgrep": "semgrep scan --config auto .",
+        "check": [
+            "composer validate --strict",
+            "composer security:audit",
+            "composer security:sbom",
+            "composer security:semgrep",
+            "@lint"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "cyclonedx/cyclonedx-php-composer": true
+        }
+    }
 }
