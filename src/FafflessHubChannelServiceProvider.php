@@ -3,6 +3,7 @@
 namespace Faffless\CommunicationChannel;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Http\Client\Factory;
 use Faffless\CommunicationChannel\Commands\InstallFafflessHubChannelCommand;
 use Faffless\CommunicationChannel\Mail\FafflessHubTransport;
 use Symfony\Component\Mailer\Transport\TransportInterface;
@@ -18,8 +19,8 @@ class FafflessHubChannelServiceProvider extends ServiceProvider
     {
         $this->app['mail.manager']->extend('faffless', function (array $config = []): TransportInterface {
             return new FafflessHubTransport(
-                http: $this->app['http'],
-                url: $config['url'] ?? config('faffless-hub.url'),
+                http: $this->app->make(Factory::class),
+                url: $config['base_url'] ?? $config['url'] ?? config('faffless-hub.url'),
                 apiKey: $config['api_key'] ?? config('faffless-hub.api_key'),
                 timeout: (int) ($config['timeout'] ?? config('faffless-hub.timeout', 10)),
             );

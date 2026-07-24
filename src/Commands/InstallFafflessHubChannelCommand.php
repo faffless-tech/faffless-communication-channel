@@ -57,7 +57,7 @@ class InstallFafflessHubChannelCommand extends Command
         $mailer = <<<'PHP'
         'faffless' => [
             'transport' => 'faffless',
-            'url' => env('FAFFLESS_HUB_URL', 'https://communication.faffless.ai'),
+            'base_url' => env('FAFFLESS_HUB_URL', 'https://communication.faffless.ai'),
             'api_key' => env('FAFFLESS_HUB_API_KEY'),
             'timeout' => 10,
         ],
