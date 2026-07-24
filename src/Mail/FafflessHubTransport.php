@@ -27,10 +27,14 @@ class FafflessHubTransport extends AbstractTransport
     {
         $email = MessageConverter::toEmail($message->getOriginalMessage());
         $envelope = $message->getEnvelope();
+        $idempotencyKey = $this->idempotencyKey($email);
 
         $this->http
             ->timeout($this->timeout)
             ->withToken($this->apiKey)
+            ->withHeaders(array_filter([
+                'Idempotency-Key' => $idempotencyKey,
+            ]))
             ->post(rtrim($this->url, '/').'/api/v1/application/email', $this->payload($email, $envelope))
             ->throw();
     }
@@ -42,18 +46,21 @@ class FafflessHubTransport extends AbstractTransport
 
     private function payload(Email $email, Envelope $envelope): array
     {
+        $to = $email->getTo();
+
         return array_filter([
             'from' => $this->firstAddress($email->getFrom()),
-            'to' => $this->addresses($envelope->getRecipients()),
+            'to' => $this->addresses($to === [] ? $envelope->getRecipients() : $to),
             'cc' => $this->addresses($email->getCc()),
             'bcc' => $this->addresses($email->getBcc()),
             'reply_to' => $this->addresses($email->getReplyTo()),
             'subject' => $email->getSubject() ?? '',
             'text' => $email->getTextBody(),
             'html' => $email->getHtmlBody(),
+            'purpose' => $this->controlHeader($email, 'X-Faffless-Purpose'),
             'metadata' => [
                 'message_id' => $email->getHeaders()->get('Message-ID')?->getBodyAsString(),
-                'headers' => $this->headers($email),
+                'sensitive' => $this->sensitive($email),
             ],
         ], fn ($value) => $value !== null && $value !== [] && $value !== '');
     }
@@ -77,14 +84,33 @@ class FafflessHubTransport extends AbstractTransport
         return $addresses === [] ? null : $this->addresses([$addresses[0]])[0];
     }
 
-    private function headers(Email $email): array
+    private function idempotencyKey(Email $email): ?string
     {
-        $headers = [];
+        $source = $this->controlHeader($email, 'X-Faffless-Idempotency-Key')
+            ?? $email->getHeaders()->get('Message-ID')?->getBodyAsString();
 
-        foreach ($email->getHeaders()->all() as $header) {
-            $headers[$header->getName()] = $header->getBodyAsString();
+        if (! $source) {
+            return null;
         }
 
-        return $headers;
+        return 'mail:'.hash('sha256', trim($source, " \t\n\r\0\x0B<>"));
+    }
+
+    private function sensitive(Email $email): ?bool
+    {
+        $value = $this->controlHeader($email, 'X-Faffless-Sensitive');
+
+        if ($value === null) {
+            return null;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+    }
+
+    private function controlHeader(Email $email, string $name): ?string
+    {
+        $value = $email->getHeaders()->get($name)?->getBodyAsString();
+
+        return filled($value) ? trim($value) : null;
     }
 }

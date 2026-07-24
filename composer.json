@@ -11,8 +11,8 @@
         "illuminate/mail": "^10.0|^11.0|^12.0|^13.0",
         "illuminate/notifications": "^10.0|^11.0|^12.0|^13.0",
         "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
-        "symfony/mailer": "^6.2|^7.0",
-        "symfony/mime": "^6.2|^7.0"
+        "symfony/mailer": "^6.2|^7.0|^8.0",
+        "symfony/mime": "^6.2|^7.0|^8.0"
     },
     "autoload": {
         "psr-4": {
@@ -35,10 +35,12 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require-dev": {
-        "cyclonedx/cyclonedx-php-composer": "^6.2"
+        "cyclonedx/cyclonedx-php-composer": "^6.2",
+        "phpunit/phpunit": "^12.5"
     },
     "scripts": {
         "lint": "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
+        "test": "phpunit",
         "security:audit": "composer audit",
         "security:sbom": [
             "@php -r \"is_dir('build/sbom') || mkdir('build/sbom', 0775, true);\"",
@@ -50,6 +52,7 @@
             "composer security:audit",
             "composer security:sbom",
             "composer security:semgrep",
+            "@test",
             "@lint"
         ]
     },
