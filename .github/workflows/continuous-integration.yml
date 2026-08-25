@@ -1,0 +1,30 @@
+name: continuous-integration
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: appetyte-ltd/engineering-workflows/.github/workflows/php-package-ci.yml@51449172c8dacbc4fa6031552f636b0d142af11b
+    with:
+      php-version: '8.5'
+      uses-faffless-packages: true
+      faffless-package-app-id: ${{ vars.FAFFLESS_PACKAGE_APP_ID }}
+      generate-sbom: true
+      run-semgrep: true
+      semgrep-config: .semgrep.yml
+    secrets:
+      FAFFLESS_PACKAGE_APP_PRIVATE_KEY: ${{ secrets.FAFFLESS_PACKAGE_APP_PRIVATE_KEY }}

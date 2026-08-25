@@ -1,0 +1,48 @@
+rules:
+  - id: php-dangerous-eval
+    languages: [php]
+    severity: ERROR
+    message: Dynamic PHP evaluation is prohibited.
+    pattern: eval(...)
+    paths:
+      include: [/src]
+  - id: php-unsafe-unserialize
+    languages: [php]
+    severity: ERROR
+    message: Native unserialize can instantiate unsafe objects; use a typed serializer.
+    pattern: unserialize(...)
+    paths:
+      include: [/src]
+
+  - id: php-command-execution
+    languages: [php]
+    severity: ERROR
+    message: Direct operating-system command execution is prohibited in package code.
+    pattern-either:
+      - pattern: shell_exec(...)
+      - pattern: exec(...)
+      - pattern: system(...)
+      - pattern: passthru(...)
+      - pattern: proc_open(...)
+    paths:
+      include: [/src]
+
+  - id: laravel-http-tls-verification-disabled
+    languages: [php]
+    severity: ERROR
+    message: Outbound TLS certificate verification must not be disabled.
+    pattern-either:
+      - pattern: $CLIENT->withoutVerifying()
+      - pattern: $CLIENT->withOptions([...,'verify' => false,...])
+    paths:
+      include: [/src]
+
+  - id: php-debug-helper-in-package
+    languages: [php]
+    severity: ERROR
+    message: Debug helpers must not remain in package code.
+    pattern-either:
+      - pattern: dd(...)
+      - pattern: dump(...)
+    paths:
+      include: [/src]
