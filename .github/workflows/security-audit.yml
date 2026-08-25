@@ -1,0 +1,17 @@
+name: security-audit
+
+on:
+  schedule:
+    - cron: '47 4 * * 3'
+  workflow_dispatch:
+
+concurrency:
+  group: security-audit-${{ github.repository }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    uses: appetyte-ltd/engineering-workflows/.github/workflows/semgrep-audit.yml@51449172c8dacbc4fa6031552f636b0d142af11b
