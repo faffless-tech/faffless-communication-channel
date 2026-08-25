@@ -12,6 +12,8 @@ updates:
       timezone: Europe/London
     cooldown:
       default-days: 7
+    ignore:
+      - dependency-name: "appetyte-ltd/engineering-workflows/*"
     groups:
       github-actions:
         patterns:
