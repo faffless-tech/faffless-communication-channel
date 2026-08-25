@@ -1,0 +1,18 @@
+version: 2
+updates:
+  # Composer updates are intentionally excluded: this package consumes a
+  # private Faffless repository and Dependabot cannot mint the short-lived
+  # GitHub App token used by CI. Do not replace it with a long-lived PAT.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: friday
+      time: "02:10"
+      timezone: Europe/London
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
