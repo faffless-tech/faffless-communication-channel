@@ -1,3 +1,14 @@
+# Mirrors appetyte-ltd/engineering-workflows/.github/workflows/php-package-ci.yml
+# @51449172c8dacbc4fa6031552f636b0d142af11b, inlined with this repository's inputs
+# (php-version 8.5, generate-sbom, run-semgrep with .semgrep.yml). The shared workflow was
+# called with uses-faffless-packages: true; those GitHub App token steps are omitted because
+# faffless/hub-client is now a public repository and needs no credentials to install.
+#
+# Why inline: this repository is public, and GitHub does not let public repositories
+# call reusable workflows held in an internal repository. Keep these steps, action SHAs
+# and the Semgrep image in step with php-package-ci.yml when the shared workflow changes.
+# The job names are the literal strings `ci / quality` and `ci / semgrep` so they report
+# the same check contexts the branch ruleset requires.
 name: continuous-integration
 
 on:
@@ -16,15 +27,84 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  PHP_VERSION: '8.5'
+
 jobs:
-  ci:
-    uses: appetyte-ltd/engineering-workflows/.github/workflows/php-package-ci.yml@51449172c8dacbc4fa6031552f636b0d142af11b
-    with:
-      php-version: '8.5'
-      uses-faffless-packages: true
-      faffless-package-app-id: ${{ vars.FAFFLESS_PACKAGE_APP_ID }}
-      generate-sbom: true
-      run-semgrep: true
-      semgrep-config: .semgrep.yml
-    secrets:
-      FAFFLESS_PACKAGE_APP_PRIVATE_KEY: ${{ secrets.FAFFLESS_PACKAGE_APP_PRIVATE_KEY }}
+  quality:
+    name: ci / quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout package source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          tools: composer:v2
+          coverage: none
+
+      - name: Locate Composer cache
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer downloads
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ env.PHP_VERSION }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ env.PHP_VERSION }}-composer-
+
+      - name: Validate package metadata
+        run: composer validate --strict
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Audit PHP dependencies
+        run: composer audit --no-interaction
+
+      - name: Lint package source
+        run: composer lint
+
+      - name: Run package tests
+        run: composer test
+
+      - name: Generate CycloneDX SBOM
+        if: github.event_name == 'push'
+        run: composer security:sbom
+
+      - name: Upload CycloneDX SBOM
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cyclonedx-package-php-${{ env.PHP_VERSION }}-${{ github.sha }}
+          path: build/sbom/cyclonedx.json
+          if-no-files-found: error
+          retention-days: 30
+
+  semgrep:
+    name: ci / semgrep
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: semgrep/semgrep:1.174.0
+
+    steps:
+      - name: Checkout package source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run repository security policy
+        env:
+          SEMGREP_CONFIG: .semgrep.yml
+          SEMGREP_SEND_METRICS: 'off'
+        run: semgrep ci --config "$SEMGREP_CONFIG"
