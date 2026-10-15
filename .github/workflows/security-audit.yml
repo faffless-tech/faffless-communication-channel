@@ -1,3 +1,10 @@
+# Mirrors appetyte-ltd/engineering-workflows/.github/workflows/semgrep-audit.yml
+# @51449172c8dacbc4fa6031552f636b0d142af11b.
+#
+# Why inline: this repository is public, and GitHub does not let public repositories
+# call reusable workflows held in an internal repository. Keep the steps, action SHA
+# and the Semgrep image in step with semgrep-audit.yml when the shared workflow changes.
+# The job name keeps the `semgrep / audit` check name the shared workflow produced.
 name: security-audit
 
 on:
@@ -13,5 +20,26 @@ permissions:
   contents: read
 
 jobs:
-  semgrep:
-    uses: appetyte-ltd/engineering-workflows/.github/workflows/semgrep-audit.yml@51449172c8dacbc4fa6031552f636b0d142af11b
+  audit:
+    name: semgrep / audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: semgrep/semgrep:1.174.0
+
+    steps:
+      - name: Checkout application source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run broad community security audit
+        env:
+          SEMGREP_SEND_METRICS: 'off'
+        run: >-
+          semgrep ci
+          --config p/php
+          --config p/javascript
+          --config p/typescript
+          --config p/security-audit
+          --config p/secrets
