@@ -151,3 +151,16 @@ $command = app(FafflessHubCommand::class)->sendTracker(
 
 $interactionId = $command['interaction_id'];
 ```
+
+## Contributor checks and releases
+
+After installing dependencies with `composer install`, run `composer ci:check`
+before pushing. `composer check` is an alias for the same gate: strict package
+metadata validation, dependency audit, the existing package lint and tests,
+CycloneDX SBOM generation, and the blocking repository-owned Semgrep policy.
+`composer security:semgrep` runs that same deterministic local policy; the
+weekly community-rule audit remains a separate check.
+
+These are package checks. Releases use reviewed semantic-version tags and
+consumer dependency updates; there is no package UAT or Production deployment.
+Existing released tags must never be changed or reused.
